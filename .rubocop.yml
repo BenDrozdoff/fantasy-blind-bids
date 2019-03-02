@@ -1,0 +1,18 @@
+Metrics/BlockLength:
+  Exclude:
+    - "spec/**/*.rb"
+
+Metrics/LineLength:
+  Max: 120
+  Exclude:
+    - "Gemfile"
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/MixinUsage:
+  Exclude: 
+    - "bin/**/*"

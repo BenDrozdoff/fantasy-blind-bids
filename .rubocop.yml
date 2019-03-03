@@ -1,11 +1,17 @@
 Metrics/BlockLength:
   Exclude:
-    - "spec/**/*.rb"
+    - spec/**/*
+    - db/**/*
+
+Metrics/MethodLength:
+  Exclude:
+    - db/**/*
 
 Metrics/LineLength:
   Max: 120
   Exclude:
-    - "Gemfile"
+    - Gemfile
+    - config/**/*
 
 Metrics/PerceivedComplexity:
   Enabled: false

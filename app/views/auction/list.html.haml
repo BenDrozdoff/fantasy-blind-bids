@@ -1,0 +1,19 @@
+.table-header
+  %h1 Auctions
+%table
+  %tr 
+    %th
+      Auction 
+    %th
+      Item Count
+    %th 
+      Last Updated
+  - @auctions.each do |auction|
+    %tr
+      %td
+        %a{href: "/auction/#{auction.id}"}
+          = auction.name 
+      %td
+        = auction.items.count
+      %td 
+        = auction.updated_at.to_formatted_s(:long)

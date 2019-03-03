@@ -1,0 +1,23 @@
+.table-header
+  %h1 
+    = "Items for #{@auction.name}"
+%table
+  %tr 
+    %th
+      Item 
+    %th
+      Starting Price
+    %th 
+      Owner
+    %th
+      Closes In
+  - @auction.items.each do |item|
+    %tr
+      %td
+        = item.name
+      %td
+        = item.starting_price
+      %td 
+        Allen Webster
+      %td 
+        = distance_of_time_in_words(Time.now, item.closes_at)

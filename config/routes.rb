@@ -7,7 +7,4 @@ Rails.application.routes.draw do
   get 'auction/:auction_id', to: 'auction#show'
   post 'auction/:auction_id/join', to: 'auction#toggle_membership', as: :join_auction
   post 'auction/:auction_id/leave', to: 'auction#toggle_membership', as: :leave_auction
-  post 'bid', to: 'bid#create'
-  put 'bid/:bid_id', to: 'bid#update'
-  delete 'bid/:bid_id', to: 'bid#destroy'
 end

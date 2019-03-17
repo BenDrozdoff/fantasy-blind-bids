@@ -7,12 +7,24 @@
       Item Count
     %th 
       Last Updated
+    %th
+      Action
   - @auctions.each do |auction|
     %tr
       %td
         %a{href: "/auction/#{auction.id}"}
           = auction.name 
+        - if current_user_is_member?(auction)
+          %small.text-success
+            Member
       %td
         = auction.items.count
       %td 
         = auction.updated_at.to_formatted_s(:long)
+      %td
+        - if !current_user
+          %a{class: "btn btn-sm btn-info", href: '/users/sign_in'} Sign in to join
+        - elsif current_user_is_member?(auction)
+          = button_to "Leave", "/auction/#{auction.id}/leave", method: "post", class: "btn btn-sm btn-danger text-light"
+        - else 
+          = button_to "Join", "/auction/#{auction.id}/join", method: "post", class: "btn btn-sm btn-success text-light"

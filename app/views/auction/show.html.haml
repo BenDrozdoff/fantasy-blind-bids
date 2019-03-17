@@ -4,19 +4,36 @@
   %tr 
     %th
       Item 
-    %th
-      Starting Price
     %th 
       Owner
     %th
       Closes In
+    %th
+      Starting Price
+    %th
+      My Bid 
+    %th
+      Action
   - @auction.items.each do |item|
     %tr
       %td
         = item.name
-      %td
-        = item.starting_price
       %td 
         Allen Webster
       %td 
         = distance_of_time_in_words(Time.now, item.closes_at)
+      %td
+        = number_to_currency(item.starting_price, precision: 0)
+      %td 
+        = current_user_bid_value(item)
+      %td
+        - if current_user_bid(item).present?
+          = form_tag("/bid/#{current_user_bid(item).id}", method: :put, class: "d-inline") do
+            = number_field("bid", "value", required: true, min: item.starting_price + 1, style: "width: 60px;")
+            = submit_tag("Update", class: "btn btn-sm btn-warning")
+          = button_to "Delete", "/bid/#{current_user_bid(item).id}", method: :delete, form_class: "d-inline", class: "btn btn-sm btn-danger"
+        - else
+          = form_tag("/bid", method: :post) do 
+            = number_field("bid", "value", required: true, min: item.starting_price + 1)
+            = hidden_field_tag("item_id", item.id)
+            = submit_tag("Bid", class: "btn btn-sm btn-success")

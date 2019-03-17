@@ -6,6 +6,8 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+  has_and_belongs_to_many :auctions, join_table: :memberships
+
   def full_name
     [first_name, last_name].join(' ')
   end

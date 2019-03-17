@@ -11,8 +11,7 @@
 
   <body>
     <%= render 'layouts/navbar' %>
-    <p class="notice" style="margin: 0px;"><%= notice %></p>
-    <p class="alert" style="padding: 0px; margin: 0px;"><%= alert %></p>
+    <%= render 'layouts/flash' %>
     <%= yield %>
   </body>
 </html>

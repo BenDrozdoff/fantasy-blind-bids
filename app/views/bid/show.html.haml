@@ -1,5 +1,5 @@
-%h1.text-center
-  = "Items for #{@auction.name}"
+%h1.text-center My Auction Items
+
 %ul.nav.nav-tabs{role: "tablist"}
   %li.active.nav-item{role: "presentation"}
     %a.nav-link{href: "#active-items", "aria-controls": "active-items", role: "tab", "data-toggle": "tab"}
@@ -7,34 +7,41 @@
   %li.nav-item{role: "presentation"}
     %a.nav-link{href: "#expired-items", "aria-controls": "expired-items", role: "tab", "data-toggle": "tab"}
       Expired
+  %li.nav-item{role: "presentation"}
+    %a.nav-link{href: "#won-items", "aria-controls": "won-items", role: "tab", "data-toggle": "tab"}
+      Won
 .tab-content
   %div#active-items.tab-pane.active{role: "tabpanel"}
     %table{class: "table table-hover table-bordered"}
       %tr 
         %th
-          Item 
-        %th 
-          Owner
+          Item
+        %th
+          Auction
         %th
           Closes In
         %th
           Starting Price
         %th
-          My Bid 
+          High Bid 
+        %th
+          High Bidder
         %th
           Action
-      - @auction.items.active.each do |item|
+      - current_user.owned_items.active.each do |item|
         %tr
           %td
             = item.name
           %td 
-            = owner_name(item)
+            = item.auction.name
           %td 
             = distance_of_time_in_words(Time.now, item.closes_at)
           %td
             = number_to_currency(item.starting_price, precision: 0)
           %td 
-            = current_user_bid_value(item)
+            = number_to_currency(item.current_high_bid, precision: 0)
+          %td
+            = item.current_high_bidder
           %td
             - if belongs_to_current_user? item
               %a.btn.btn-sm.btn-info{href: "/item/#{item.id}/bids"} View Bids
@@ -48,12 +55,42 @@
                 = number_field("bid", "value", required: true, min: item.starting_price + 1, style: "width: 60px;")
                 = hidden_field_tag("item_id", item.id)
                 = submit_tag("Bid", class: "btn btn-sm btn-success")
-
   %div#expired-items.tab-pane{role: "tabpanel"}
     %table{class: "table table-hover table-bordered"}
       %tr 
         %th
           Item 
+        %th 
+          Auction
+        %th
+          Closed At
+        %th
+          Starting Price
+        %th
+          Winning Bid
+        %th
+          Winner
+      - current_user.owned_items.expired.each do |item|
+        %tr
+          %td
+            = item.name
+          %td 
+            = item.auction.name
+          %td 
+            = distance_of_time_in_words(Time.now, item.closes_at)
+          %td
+            = number_to_currency(item.starting_price, precision: 0)
+          %td 
+            = item.winning_bid_value
+          %td
+            = item.winner 
+  %div#won-items.tab-pane{role: "tabpanel"}
+    %table{class: "table table-hover table-bordered"}
+      %tr
+        %th
+          Item
+        %th 
+          Auction
         %th 
           Owner
         %th
@@ -61,24 +98,18 @@
         %th
           Starting Price
         %th
-          My Bid 
-        %th
           Winning Bid
-        %th
-          Winner
-      - @auction.items.expired.each do |item|
+      - current_user.won_items.each do |item|
         %tr
           %td
             = item.name
           %td 
-            = owner_name(item)
+            = item.auction.name 
+          %td 
+            = item.owner.full_name
           %td 
             = distance_of_time_in_words(Time.now, item.closes_at)
           %td
             = number_to_currency(item.starting_price, precision: 0)
           %td 
-            = current_user_bid_value(item)
-          %td
             = number_to_currency(item.winning_bid_value, precision: 0)
-          %td
-            = item.winner.full_name         

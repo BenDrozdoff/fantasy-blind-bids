@@ -1,11 +1,31 @@
+require: rubocop-rspec
+
+AllCops:
+  DisplayCopNames: true
+
+Layout/IndentHash:
+  EnforcedStyle: consistent
+
+Layout/IndentArray:
+  EnforcedStyle: consistent
+
+Layout/MultilineMethodCallIndentation:
+  EnforcedStyle: indented
+
+Layout/DotPosition:
+  EnforcedStyle: trailing
+
+Metrics/AbcSize:
+  Enabled: false
+
 Metrics/BlockLength:
   Exclude:
+    - app/admin/**/*
+    - db/**/*
     - spec/**/*
-    - db/**/*
 
-Metrics/MethodLength:
-  Exclude:
-    - db/**/*
+Metrics/CyclomaticComplexity:
+  Enabled: false
 
 Metrics/LineLength:
   Max: 120
@@ -13,12 +33,115 @@ Metrics/LineLength:
     - Gemfile
     - config/**/*
 
+Metrics/MethodLength:
+  Enabled: true
+  CountComments: false
+  Max: 25
+
 Metrics/PerceivedComplexity:
   Enabled: false
 
+Naming/MemoizedInstanceVariableName:
+  EnforcedStyleForLeadingUnderscores: required
+
+Naming/UncommunicativeMethodParamName:
+  AllowedNames:
+  - e
+  - ex
+  - id
+
+Rails:
+  Enabled: false
+
+RSpec/ContextWording:
+  Enabled: false
+
+RSpec/DescribeClass:
+  Exclude:
+  - "spec/requests/**/*.rb"
+  - "spec/features/**/*.rb"
+  - "spec/routing/**/*.rb"
+  - "spec/views/**/*.rb"
+  - "spec/system/**/*.rb"
+  - "spec/integrations/**/*.rb"
+
+RSpec/ExampleLength:
+  Max: 25
+
+RSpec/LetSetup:
+  Enabled: false
+
+RSpec/MessageExpectation:
+  Enabled: true
+  EnforcedStyle: allow
+
+RSpec/MultipleExpectations:
+  Max: 5
+
+RSpec/NestedGroups:
+  Max: 5
+
+# From rubocop-rspec
+Rails/HttpStatus:
+  Enabled: true
+  EnforcedStyle: symbolic
+
 Style/Documentation:
+  Enabled: false
+
+Style/EmptyLiteral:
+  Enabled: false
+
+Style/FrozenStringLiteralComment:
+  Enabled: true
+  EnforcedStyle: when_needed
+
+Style/GuardClause:
+  Enabled: false
+
+Style/IfUnlessModifier:
   Enabled: false
 
 Style/MixinUsage:
   Exclude: 
     - "bin/**/*"
+
+Style/NegatedIf:
+  Enabled: false
+
+# This cop does not yet support a style to prevent underscores
+Style/NumericLiterals:
+  Enabled: false
+
+Style/PercentLiteralDelimiters:
+  PreferredDelimiters:
+    default: '()'
+    '%i': '()'
+    '%I': '()'
+    '%r': '{}'
+    '%w': '()'
+    '%W': '()'
+
+Style/RaiseArgs:
+  EnforcedStyle: compact
+
+Style/RegexpLiteral:
+  Enabled: true
+  EnforcedStyle: slashes
+  AllowInnerSlashes: true
+
+Style/SingleLineBlockParams:
+  Enabled: false
+
+Style/StderrPuts:
+  Exclude:
+    - "bin/yarn"
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Style/TrailingCommaInArrayLiteral:
+  EnforcedStyleForMultiline: consistent_comma
+
+Style/TrailingCommaInHashLiteral:
+  EnforcedStyleForMultiline: consistent_comma

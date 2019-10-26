@@ -17,7 +17,7 @@ module BidHelper
   end
 
   def owner_name(item)
-    return 'Me' if belongs_to_current_user?(item)
+    return "Me" if belongs_to_current_user?(item)
 
     item.owner.full_name
   end

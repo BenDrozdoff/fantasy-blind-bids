@@ -30,6 +30,7 @@ gem "bootstrap"
 gem "devise"
 gem "faraday"
 gem "haml"
+gem "sentry-raven"
 gem "jquery-rails"
 
 # Use ActiveStorage variant

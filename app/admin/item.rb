@@ -18,5 +18,5 @@ ActiveAdmin.register Item do
   filter :name
   filter :starting_price
   filter :final_price
-  filter :status
+  filter :status, as: :select, collection: Item.statuses
 end

@@ -7,7 +7,7 @@ ActiveAdmin.register Auction do
   end
 
   action_item :expired_items, only: :show do
-    link_to "Expired Items", admin_items_path(q: { status_equals: :expired })
+    link_to "Expired Items", admin_items_path(q: { status_eq: 1 })
   end
 
   show do

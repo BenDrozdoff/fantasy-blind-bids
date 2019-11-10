@@ -30,8 +30,8 @@ gem "bootstrap"
 gem "devise"
 gem "faraday"
 gem "haml"
-gem "sentry-raven"
 gem "jquery-rails"
+gem "sentry-raven"
 
 # Use ActiveStorage variant
 # gem 'mini_magick', '~> 4.8'

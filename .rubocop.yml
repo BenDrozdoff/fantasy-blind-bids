@@ -3,10 +3,10 @@ require: rubocop-rspec
 AllCops:
   DisplayCopNames: true
 
-Layout/IndentHash:
+Layout/IndentFirstHashElement:
   EnforcedStyle: consistent
 
-Layout/IndentArray:
+Layout/IndentFirstArrayElement:
   EnforcedStyle: consistent
 
 Layout/MultilineMethodCallIndentation:
@@ -94,7 +94,7 @@ Style/EmptyLiteral:
 
 Style/FrozenStringLiteralComment:
   Enabled: true
-  EnforcedStyle: when_needed
+  EnforcedStyle: always 
 
 Style/GuardClause:
   Enabled: false

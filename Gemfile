@@ -28,6 +28,7 @@ gem "jbuilder", "~> 2.5"
 gem "activeadmin"
 gem "bootstrap"
 gem "devise"
+gem "faraday"
 gem "haml"
 gem "jquery-rails"
 

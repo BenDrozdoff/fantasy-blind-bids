@@ -22,7 +22,7 @@ class Item < ApplicationRecord
   end
 
   def current_high_bid
-    bids.maximum(:value)
+    bids.maximum(:value) || starting_price
   end
 
   def bid_count
@@ -30,7 +30,7 @@ class Item < ApplicationRecord
   end
 
   def current_high_bidder
-    bids.max_by(&:value)&.user
+    bids.max_by(&:value)&.user || owner
   end
 
   def expire!
@@ -38,12 +38,36 @@ class Item < ApplicationRecord
       break unless active?
 
       update!(status: :expired, final_price: current_high_bid, winner: current_high_bidder)
+
+      ResultsGroupmeJob.perform_later(id)
     end
+  end
+
+  def bid_report
+    BidReporter.new(self).report
   end
 
   private
 
   def schedule_expiration
     ExpireItemJob.set(wait_until: closes_at).perform_later(id)
+  end
+
+  BidReporter = Struct.new(:item) do
+    def self.report(item)
+      new(item).report
+    end
+
+    def no_bids_made
+      "No bids made for #{item.name}, remains with #{item.owner.full_name} for $#{item.starting_price}"
+    end
+
+    def winner
+      "#{item.winner} wins #{item.name} for $#{final_price}"
+    end
+
+    def report
+      item.bids.any? ? winner : no_bids_made
+    end
   end
 end

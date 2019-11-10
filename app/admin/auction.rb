@@ -62,4 +62,6 @@ ActiveAdmin.register Auction do
       end
     end
   end
+
+  filter :name
 end

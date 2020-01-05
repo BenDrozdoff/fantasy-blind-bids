@@ -63,7 +63,7 @@ class Item < ApplicationRecord
     end
 
     def winner
-      "#{item.winner} wins #{item.name} for $#{final_price}"
+      "#{item.winner.full_name} wins #{item.name} for $#{item.final_price}"
     end
 
     def report

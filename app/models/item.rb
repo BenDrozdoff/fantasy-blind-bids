@@ -39,7 +39,7 @@ class Item < ApplicationRecord
 
       update!(status: :expired, final_price: current_high_bid, winner: current_high_bidder)
 
-      ResultsGroupmeJob.perform_later(id)
+      ResultsGroupmeWorker.perform_async(id)
     end
   end
 
@@ -50,7 +50,7 @@ class Item < ApplicationRecord
   private
 
   def schedule_expiration
-    ExpireItemJob.set(wait_until: closes_at).perform_later(id)
+    ExpireItemWorker.perform_at(closes_at, id)
   end
 
   BidReporter = Struct.new(:item) do

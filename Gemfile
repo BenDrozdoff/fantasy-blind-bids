@@ -32,7 +32,7 @@ gem "faraday"
 gem "haml"
 gem "jquery-rails"
 gem "sentry-raven"
-gem "sidekiq"
+gem "sidekiq", "~> 5.2.7"
 
 # Use ActiveStorage variant
 # gem 'mini_magick', '~> 4.8'

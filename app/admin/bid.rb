@@ -7,8 +7,11 @@ ActiveAdmin.register Bid do
   controller do
     actions :update, :create
     def create
-      super do |success, _failure|
+      super do |success, failure|
         success.html { redirect_to admin_auction_path(@bid.item.auction) }
+        failure.html do
+          redirect_to admin_auction_path(@bid.item.auction), flash: { error: @bid.errors.values.join(", ") }
+        end
       end
     end
 

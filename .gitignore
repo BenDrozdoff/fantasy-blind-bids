@@ -28,3 +28,6 @@
 
 # Ignore IDE files
 /.vscode
+
+# Ignore Test Coverage
+/coverage/*

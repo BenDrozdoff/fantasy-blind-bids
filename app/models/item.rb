@@ -15,12 +15,6 @@ class Item < ApplicationRecord
                                    }
   after_save :schedule_expiration
 
-  def winning_bid_value
-    return unless expired?
-
-    bids.maximum(:value)
-  end
-
   def current_high_bid
     bids.maximum(:value) || starting_price
   end
@@ -50,6 +44,8 @@ class Item < ApplicationRecord
   private
 
   def schedule_expiration
+    return unless Time.now < closes_at
+
     ExpireItemWorker.perform_at(closes_at, id)
   end
 

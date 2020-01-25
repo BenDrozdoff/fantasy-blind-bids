@@ -37,4 +37,37 @@ RSpec.describe Item, type: :model do
       expect(ExpireItemWorker).to have_received(:perform_at).once.with(4.days.from_now, item.id)
     end
   end
+
+  describe "#expire!" do
+    subject(:expire) { item.expire! }
+
+    let(:item) { create :item, closes_at: 1.second.ago, status: status, starting_price: 1 }
+
+    context "with an active item" do
+      let(:status) { :active }
+
+      context "with no bids" do
+        it "sets the starting price and owner as the winner and final price" do
+          expire
+          item.reload
+          expect(item).to be_expired
+          expect(item.final_price).to eq 1
+          expect(item.winner).to eq(item.owner)
+        end
+      end
+
+      context "with a highest bid" do
+        let!(:low_bid) { create :bid, item: item, value: 15 }
+        let!(:high_bid) { create :bid, item: item, value: 30 }
+
+        it "expires the item with the highest bid as the final price" do
+          expire
+          item.reload
+          expect(item).to be_expired
+          expect(item.final_price).to eq 30
+          expect(item.winner).to eq(high_bid.user)
+        end
+      end
+    end
+  end
 end

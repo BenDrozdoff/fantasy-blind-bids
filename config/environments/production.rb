@@ -93,4 +93,5 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
+  config.x.groupme_bot_id = ENV.fetch("GROUPME_BOT_ID")
 end

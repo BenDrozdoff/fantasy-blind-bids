@@ -20,7 +20,7 @@ class GroupmeClient
   end
 
   def bot_id
-    @_bot_id ||= ENV.fetch("GROUPME_BOT_ID")
+    @_bot_id ||= Rails.configuration.x.groupme_bot_id
   end
 
   def connection

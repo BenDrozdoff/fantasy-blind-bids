@@ -70,4 +70,27 @@ RSpec.describe Item, type: :model do
       end
     end
   end
+
+  describe "#bid_report" do
+    subject { item.bid_report }
+
+    let(:owner) { create :user, first_name: "joe", last_name: "sample" }
+    let(:item) { create :item, name: "Test Item", owner: owner }
+
+    context "with no bids" do
+      let(:expected_text) { "No bids made for Test Item, remains with joe sample for $1" }
+
+      it { is_expected.to eq expected_text }
+    end
+
+    context "with bids" do
+      let(:high_bidder) { create :user, first_name: "allen", last_name: "webster" }
+      let!(:high_bid) { create :bid, item: item, value: 30, user: high_bidder }
+      let(:expected_text) { "allen webster wins Test Item for $30" }
+
+      before { item.expire! }
+
+      it { is_expected.to eq expected_text }
+    end
+  end
 end

@@ -43,6 +43,8 @@ RSpec.describe Item, type: :model do
 
     let(:item) { create :item, closes_at: 1.second.ago, status: status, starting_price: 1 }
 
+    around { |example| Timecop.freeze { example.run } }
+
     context "with an active item" do
       let(:status) { :active }
 
@@ -60,37 +62,130 @@ RSpec.describe Item, type: :model do
         let!(:low_bid) { create :bid, item: item, value: 15 }
         let!(:high_bid) { create :bid, item: item, value: 30 }
 
-        it "expires the item with the highest bid as the final price" do
+        it "sets the item to pending_match with the highest bid as the final price" do
           expire
           item.reload
-          expect(item).to be_expired
+          expect(item).to be_pending_match
           expect(item.final_price).to eq 30
+          expect(item.closes_at).to eq(3.hours.from_now)
+        end
+      end
+
+      context "with tied highest bids" do
+        let!(:low_bid) { create :bid, item: item, value: 15 }
+        let!(:high_bid_1) { create :bid, item: item, value: 30 }
+        let!(:high_bid_2) { create :bid, item: item, value: 30 }
+
+        it "sets the item to pending_match with the highest bid as the final price" do
+          expire
+          item.reload
+          expect(item).to be_pending_match
+          expect(item.final_price).to eq(30)
+          expect(item.closes_at).to eq(3.hours.from_now)
+        end
+      end
+    end
+
+    context "with an item that was not matched" do
+      let(:item) { create :item, status: :pending_match, closes_at: 1.second.ago, final_price: 30 }
+      let!(:low_bid) { create :bid, item: item, value: 15 }
+      let!(:high_bid) { create :bid, item: item, value: 30 }
+
+      context "with one high bidder" do
+        it "expires the item and sets the winner" do
+          expire
+          item.reload
           expect(item.winner).to eq(high_bid.user)
+          expect(item).to be_expired
+        end
+      end
+
+      context "with multiple high bidders" do
+        let!(:other_high_bid) { create :bid, item: item, value: 30 }
+
+        it "sets the item to tied" do
+          expire
+          item.reload
+          expect(item).to be_tied
         end
       end
     end
   end
 
+  describe "#match!" do
+    subject(:match!) { item.match! }
+
+    before { allow(ResultsGroupmeWorker).to receive(:perform_async) }
+
+    let(:item) { create :item, :pending_match }
+
+    it "expires the item, sets the winner, and calls the groupme worker" do
+      match!
+      item.reload
+      expect(item.winner).to eq(item.owner)
+      expect(item).to be_expired
+      expect(ResultsGroupmeWorker).to have_received(:perform_async).once.with item.id
+    end
+  end
+
   describe "#bid_report" do
-    subject { item.bid_report }
+    subject(:bid_report) { item.bid_report }
 
     let(:owner) { create :user, first_name: "joe", last_name: "sample" }
-    let(:item) { create :item, name: "Test Item", owner: owner }
 
-    context "with no bids" do
-      let(:expected_text) { "No bids made for Test Item, remains with joe sample for $1" }
+    context "for an item pending match" do
+      context "and a single high bid" do
+        let(:item) { create :item, :pending_match, owner: owner }
 
-      it { is_expected.to eq expected_text }
+        it "includes the winner and pending match messages" do
+          expect(bid_report).to include "#{item.bids.first.user.full_name} wins #{item.name} for $#{item.final_price}."
+          expect(bid_report).to include "joe sample has 3 hours to match"
+        end
+      end
+
+      context "and multiple high bids" do
+        let(:item) { create :item, :pending_match_tied, owner: owner }
+
+        it "describes the tie and includes the pending match message" do
+          expect(bid_report).to include "tied on"
+          expect(bid_report).to include "joe sample has 3 hours to match"
+        end
+      end
     end
 
-    context "with bids" do
-      let(:high_bidder) { create :user, first_name: "allen", last_name: "webster" }
-      let!(:high_bid) { create :bid, item: item, value: 30, user: high_bidder }
-      let(:expected_text) { "allen webster wins Test Item for $30" }
+    context "for an expired item" do
+      context "with no bids" do
+        let(:item) { create :item, owner: owner }
+        let(:expected_text) { "No bids made for #{item.name}, remains with joe sample for $1." }
 
-      before { item.expire! }
+        it { is_expected.to eq expected_text }
+      end
 
-      it { is_expected.to eq expected_text }
+      context "for a matched item" do
+        let(:item) { create :item, :matched, owner: owner }
+        let(:expected_text) { "joe sample has matched #{item.name} for $15" }
+
+        it { is_expected.to eq expected_text }
+      end
+
+      context "for a won item with no match" do
+        let(:item) { create :item, :won, owner: owner }
+        let(:expected_text) { "foo" }
+
+        it "indicates winner and no match" do
+          expect(bid_report).to include "wins #{item.name}"
+          expect(bid_report).to include "joe sample has chosen not to match"
+        end
+      end
+
+      context "for a tied item with no match" do
+        let(:item) { create :item, :tied, owner: owner }
+
+        it "indicates tie and no match" do
+          expect(bid_report).to include "tie"
+          expect(bid_report).to include "joe sample has chosen not to match"
+        end
+      end
     end
   end
 end

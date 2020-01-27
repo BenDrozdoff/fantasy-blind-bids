@@ -19,4 +19,12 @@ ActiveAdmin.register Item do
   filter :starting_price
   filter :final_price
   filter :status, as: :select, collection: Item.statuses
+
+  member_action :match, method: :put do
+    return head :unauthorized unless current_user.id == resource.owner_id
+
+    resource.match!
+    flash[:success] = "#{resource.name} matched for $#{resource.final_price}"
+    redirect_to request.referer
+  end
 end

@@ -42,6 +42,19 @@ ActiveAdmin.register Auction do
           end
         end
       end
+      tab "Pending Match", id: :pending_match do
+        table_for resource.items.available_to_match(current_user.id) do
+          column :name
+          column :starting_price
+          column :final_price
+          column :current_high_bidder
+          column :action do |item|
+            form_for(:item, url: match_admin_item_path(item), method: :put) do |f|
+              f.submit "Match for $#{item.final_price}"
+            end
+          end
+        end
+      end
       tab "My Items", id: :my_items do
         table_for resource.items.active_belonging_to_user(current_user.id) do
           column :name

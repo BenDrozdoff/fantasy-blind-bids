@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Item < ApplicationRecord
-  enum status: %i(active expired)
+  enum status: %i(active expired pending_match tied)
   belongs_to :auction
   has_many :bids, dependent: :destroy
   belongs_to :owner, class_name: "User"
@@ -9,6 +9,9 @@ class Item < ApplicationRecord
   validates :closes_at, presence: true
   scope :available_to_user, lambda { |user_id|
     active.includes(:bids).references(:bids).where(bids: { user_id: [nil, user_id] }).where.not(owner_id: user_id)
+  }
+  scope :available_to_match, lambda { |user_id|
+    pending_match.includes(:bids).where(owner_id: user_id)
   }
   scope :active_belonging_to_user, lambda { |user_id|
                                      active.includes(bids: :user).where(owner_id: user_id).order("bids.value DESC")
@@ -23,47 +26,70 @@ class Item < ApplicationRecord
     bids.length
   end
 
+  def current_high_bidders
+    return [owner] unless bids.any?
+
+    bids.where(value: current_high_bid).map(&:user)
+  end
+
   def current_high_bidder
-    bids.max_by(&:value)&.user || owner
+    current_high_bidders.first if current_high_bidders.count == 1
+  end
+
+  def currently_tied?
+    !current_high_bidder.is_a? User
+  end
+
+  def match!
+    with_lock do
+      break unless pending_match?
+
+      update(status: :expired, closes_at: Time.now, winner: owner)
+      ResultsGroupmeWorker.perform_async(id)
+    end
+  end
+
+  def matched?
+    winner_id == owner_id && starting_price != final_price
   end
 
   def expire!
     with_lock do
-      break unless active?
-
-      update!(status: :expired, final_price: current_high_bid, winner: current_high_bidder)
+      if active?
+        expire_active!
+      elsif pending_match?
+        currently_tied? ? tie! : decline_match!
+      end
 
       ResultsGroupmeWorker.perform_async(id)
     end
   end
 
   def bid_report
-    BidReporter.new(self).report
+    BidReporter.report(self)
   end
 
   private
+
+  def expire_active!
+    if bids.none?
+      update!(status: :expired, final_price: starting_price, winner: current_high_bidder)
+    else
+      update!(status: :pending_match, closes_at: 3.hours.from_now, final_price: current_high_bid)
+    end
+  end
+
+  def tie!
+    update!(status: :tied)
+  end
+
+  def decline_match!
+    update!(status: :expired, winner: current_high_bidder)
+  end
 
   def schedule_expiration
     return unless Time.now < closes_at
 
     ExpireItemWorker.perform_at(closes_at, id)
-  end
-
-  BidReporter = Struct.new(:item) do
-    def self.report(item)
-      new(item).report
-    end
-
-    def no_bids_made
-      "No bids made for #{item.name}, remains with #{item.owner.full_name} for $#{item.starting_price}"
-    end
-
-    def winner
-      "#{item.winner.full_name} wins #{item.name} for $#{item.final_price}"
-    end
-
-    def report
-      item.bids.any? ? winner : no_bids_made
-    end
   end
 end

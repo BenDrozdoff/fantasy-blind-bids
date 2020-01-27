@@ -10,6 +10,9 @@ class Item < ApplicationRecord
   scope :available_to_user, lambda { |user_id|
     active.includes(:bids).references(:bids).where(bids: { user_id: [nil, user_id] }).where.not(owner_id: user_id)
   }
+  scope :available_to_match, lambda { |user_id|
+    pending_match.includes(:bids).where(owner_id: user_id)
+  }
   scope :active_belonging_to_user, lambda { |user_id|
                                      active.includes(bids: :user).where(owner_id: user_id).order("bids.value DESC")
                                    }
@@ -39,6 +42,8 @@ class Item < ApplicationRecord
 
   def match!
     with_lock do
+      break unless pending_match?
+
       update(status: :expired, closes_at: Time.now, winner: owner)
       ResultsGroupmeWorker.perform_async(id)
     end

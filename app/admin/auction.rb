@@ -59,6 +59,7 @@ ActiveAdmin.register Auction do
         table_for resource.items.active_belonging_to_user(current_user.id) do
           column :name
           column :starting_price
+          column :closes_at
           column :bid_count
           column :current_high_bid
           column :current_high_bidder

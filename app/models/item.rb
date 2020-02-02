@@ -8,7 +8,7 @@ class Item < ApplicationRecord
   belongs_to :winner, class_name: "User", optional: true
   validates :closes_at, presence: true
   scope :available_to_user, lambda { |user_id|
-    active.includes(:bids).references(:bids).where(bids: { user_id: [nil, user_id] }).where.not(owner_id: user_id)
+    active.includes(:bids, :owner).where.not(owner_id: user_id)
   }
   scope :available_to_match, lambda { |user_id|
     pending_match.includes(:bids).where(owner_id: user_id)

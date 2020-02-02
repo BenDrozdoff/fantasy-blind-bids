@@ -20,12 +20,12 @@ ActiveAdmin.register Auction do
             column :name
             column :starting_price
             column :my_bid do |item|
-              item.bids.first&.value
+              item.bids.select { |bid| bid.user_id == current_user.id }.first&.value
             end
             column :closes_at
             column :action do |item|
               div do
-                if item.bids.none?
+                if item.bids.select { |bid| bid.user_id == current_user.id }.empty?
                   form_for :bid, url: admin_bids_path do |f|
                     f.number_field :value
                     f.hidden_field :item_id, value: item.id
@@ -33,7 +33,7 @@ ActiveAdmin.register Auction do
                   end
                 else
                   form_for :bid, url: admin_bid_path(item.bids.first.id), html: { method: :patch } do |f|
-                    f.number_field :value, value: item.bids.first.value
+                    f.number_field :value, value: item.bids.select { |bid| bid.user_id == current_user.id }.first&.value
                     f.submit "Update Bid"
                   end
                 end

@@ -6,6 +6,16 @@ ActiveAdmin.register User do
   controller do
     actions :all, except: %i(index show)
   end
+
+  def update
+    super do |success, failure|
+      success.html { redirect_to admin_root_path }
+      failure.html do
+        redirect_to admin_root_path, flash: { error: @user.errors.values.join(", ") }
+      end
+    end
+  end
+
   index do
     selectable_column
     id_column
@@ -27,6 +37,6 @@ ActiveAdmin.register User do
       f.input :password
       f.input :password_confirmation
     end
-    f.actions
+    f.action :submit
   end
 end

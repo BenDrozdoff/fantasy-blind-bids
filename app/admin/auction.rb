@@ -22,6 +22,7 @@ ActiveAdmin.register Auction do
             column :my_bid do |item|
               item.bids.first&.value
             end
+            column :closes_at
             column :action do |item|
               div do
                 if item.bids.none?

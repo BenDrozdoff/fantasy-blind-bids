@@ -110,6 +110,28 @@ RSpec.describe Item, type: :model do
         end
       end
     end
+
+    context "with an already won item" do
+      before { allow(ResultsGroupmeWorker).to receive(:perform_async) }
+
+      let(:status) { "expired" }
+
+      it "does not call the groupme worker" do
+        expire
+        expect(ResultsGroupmeWorker).not_to have_received :perform_async
+      end
+    end
+
+    context "with a tied item" do
+      before { allow(ResultsGroupmeWorker).to receive(:perform_async) }
+
+      let(:status) { "tied" }
+
+      it "does not call the groupme worker" do
+        expire
+        expect(ResultsGroupmeWorker).not_to have_received :perform_async
+      end
+    end
   end
 
   describe "#match!" do

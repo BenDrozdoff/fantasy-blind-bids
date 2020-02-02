@@ -5,13 +5,18 @@ ActiveAdmin.register User do
   permit_params :email, :password, :password_confirmation
   controller do
     actions :all, except: %i(index show)
-  end
+    def edit
+      return head :unauthorized unless current_user.id == params[:id].to_i
 
-  def update
-    super do |success, failure|
-      success.html { redirect_to admin_root_path }
-      failure.html do
-        redirect_to admin_root_path, flash: { error: @user.errors.values.join(", ") }
+      super
+    end
+
+    def update
+      super do |success, failure|
+        success.html { redirect_to admin_root_path }
+        failure.html do
+          redirect_to admin_root_path, flash: { error: @user.errors.values.join(", ") }
+        end
       end
     end
   end

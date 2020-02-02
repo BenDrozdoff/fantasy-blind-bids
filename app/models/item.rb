@@ -11,7 +11,7 @@ class Item < ApplicationRecord
     active.includes(:bids, :owner).where.not(owner_id: user_id)
   }
   scope :available_to_match, lambda { |user_id|
-    pending_match.includes(:bids).where(owner_id: user_id)
+    pending_match.includes(:bids).where(owner_id: user_id).order("bids.value DESC")
   }
   scope :active_belonging_to_user, lambda { |user_id|
                                      active.includes(bids: :user).where(owner_id: user_id).order("bids.value DESC")

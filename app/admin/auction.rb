@@ -49,6 +49,7 @@ ActiveAdmin.register Auction do
           column :starting_price
           column :final_price
           column :current_high_bidder
+          column :bids
           column :action do |item|
             form_for(:item, url: match_admin_item_path(item), method: :put) do |f|
               f.submit "Match for $#{item.final_price}"

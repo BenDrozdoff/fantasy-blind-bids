@@ -50,9 +50,14 @@ ActiveAdmin.register Auction do
           column :final_price
           column :current_high_bidder
           column :bids
-          column :action do |item|
+          column :match do |item|
             form_for(:item, url: match_admin_item_path(item), method: :put) do |f|
               f.submit "Match for $#{item.final_price}"
+            end
+          end
+          column :decline do |item|
+            form_for(:item, url: expire_admin_item_path(item), method: :put) do |f|
+              f.submit "Decline Match"
             end
           end
         end

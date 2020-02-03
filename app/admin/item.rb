@@ -27,4 +27,12 @@ ActiveAdmin.register Item do
     flash[:success] = "#{resource.name} matched for $#{resource.final_price}"
     redirect_to request.referer
   end
+
+  member_action :expire, method: :put do
+    return head :unauthorized unless current_user.id == resource.owner_id
+
+    resource.expire!
+    flash[:success] = "Declined match for #{resource.name}"
+    redirect_to request.referer
+  end
 end

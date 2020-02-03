@@ -148,6 +148,19 @@ RSpec.describe Item, type: :model do
       expect(item).to be_expired
       expect(ResultsGroupmeWorker).to have_received(:perform_async).once.with item.id
     end
+
+    context "with an arb item" do
+      let(:item) { create :item, :pending_match, arb_status: :arb_2, final_price: 49 }
+
+      it "expires the item, sets the winner, and updates the final price" do
+        match!
+        item.reload
+        expect(item.winner).to eq(item.owner)
+        expect(item).to be_expired
+        expect(item.final_price).to eq(25)
+        expect(ResultsGroupmeWorker).to have_received(:perform_async).once.with item.id
+      end
+    end
   end
 
   describe "#bid_report" do

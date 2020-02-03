@@ -23,6 +23,9 @@ ActiveAdmin.register Auction do
               item.bids.select { |bid| bid.user_id == current_user.id }.first&.value
             end
             column :closes_at
+            column :arb_status do |item|
+              item.arb_status&.humanize
+            end
             column :action do |item|
               div do
                 if item.bids.select { |bid| bid.user_id == current_user.id }.empty?
@@ -48,11 +51,14 @@ ActiveAdmin.register Auction do
           column :name
           column :starting_price
           column :final_price
+          column :arb_status do |item|
+            item.arb_status&.humanize
+          end
           column :current_high_bidder
           column :bids
           column :match do |item|
             form_for(:item, url: match_admin_item_path(item), method: :put) do |f|
-              f.submit "Match for $#{item.final_price}"
+              f.submit "Match for $#{item.matching_price}"
             end
           end
           column :decline do |item|
@@ -67,18 +73,13 @@ ActiveAdmin.register Auction do
           column :name
           column :starting_price
           column :closes_at
+          column :arb_status do |item|
+            item.arb_status&.humanize
+          end
           column :bid_count
           column :current_high_bid
           column :current_high_bidder
           column :bids
-        end
-      end
-      tab "Won Items", id: :won_items do
-        table_for resource.items.where(winner: current_user) do
-          column :name
-          column :final_price
-          column :closes_at
-          column :owner
         end
       end
     end

@@ -10,6 +10,9 @@ ActiveAdmin.register Item do
     column :winner
     column :starting_price
     column :final_price
+    column :arb_status do |item|
+      item.arb_status&.humanize
+    end
     column :closes_at
   end
 
@@ -19,6 +22,7 @@ ActiveAdmin.register Item do
   filter :starting_price
   filter :final_price
   filter :status, as: :select, collection: Item.statuses
+  filter :arb_status, as: :select, collection: Item.arb_statuses
 
   member_action :match, method: :put do
     return head :unauthorized unless current_user.id == resource.owner_id

@@ -2,6 +2,7 @@
 
 class Item < ApplicationRecord
   enum status: %i(active expired pending_match tied)
+  enum arb_status: { arb_1: "arb_1", arb_2: "arb_2", arb_3: "arb_3" }
   belongs_to :auction
   has_many :bids, dependent: :destroy
   belongs_to :owner, class_name: "User"
@@ -40,17 +41,31 @@ class Item < ApplicationRecord
     !current_high_bidder.is_a? User
   end
 
+  def matching_price
+    return final_price unless arb_status.present?
+
+    rate = case arb_status
+           when "arb_1"
+             0.25
+           when "arb_2"
+             0.5
+           when "arb_3"
+             0.75
+           end
+    (final_price.to_f * rate).ceil
+  end
+
   def match!
     with_lock do
       break unless pending_match?
 
-      update(status: :expired, closes_at: Time.now, winner: owner)
+      update(status: :expired, closes_at: Time.now, winner: owner, final_price: matching_price)
       ResultsGroupmeWorker.perform_async(id)
     end
   end
 
   def matched?
-    winner_id == owner_id && starting_price != final_price
+    winner_id == owner_id && bids.any?
   end
 
   def expire!

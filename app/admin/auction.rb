@@ -7,12 +7,12 @@ ActiveAdmin.register Auction do
   end
 
   action_item :expired_items, only: :show do
-    link_to "Expired Items", admin_items_path(q: { status_eq: 1 })
+    link_to "Expired Players", admin_items_path(q: { status_eq: 1 })
   end
 
   show do
     tabs do
-      tab "Available Items", id: :available_items do
+      tab "Available Players", id: :available_items do
         paginated_collection(
           resource.items.available_to_user(current_user.id).order(:closes_at).page(params[:page]).per(15)
         ) do
@@ -68,8 +68,8 @@ ActiveAdmin.register Auction do
           end
         end
       end
-      tab "My Items", id: :my_items do
-        table_for resource.items.active_belonging_to_user(current_user.id) do
+      tab "My Players", id: :my_items do
+        table_for resource.items.active_belonging_to_user(current_user.id).order(:closes_at) do
           column :name
           column :starting_price
           column :closes_at

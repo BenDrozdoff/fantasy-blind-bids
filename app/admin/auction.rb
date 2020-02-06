@@ -28,16 +28,17 @@ ActiveAdmin.register Auction do
             end
             column :action do |item|
               div do
-                if item.bids.select { |bid| bid.user_id == current_user.id }.empty?
+                current_bid = item.bids.select { |bid| bid.user_id == current_user.id }.first
+                if current_bid.present?
+                  form_for :bid, url: admin_bid_path(current_bid.id), html: { method: :patch } do |f|
+                    f.number_field :value, value: current_bid.value
+                    f.submit "Update Bid"
+                  end
+                else
                   form_for :bid, url: admin_bids_path do |f|
                     f.number_field :value
                     f.hidden_field :item_id, value: item.id
                     f.submit :bid
-                  end
-                else
-                  form_for :bid, url: admin_bid_path(item.bids.first.id), html: { method: :patch } do |f|
-                    f.number_field :value, value: item.bids.select { |bid| bid.user_id == current_user.id }.first&.value
-                    f.submit "Update Bid"
                   end
                 end
               end

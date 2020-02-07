@@ -26,6 +26,7 @@ gem "jbuilder", "~> 2.5"
 # gem 'bcrypt', '~> 3.1.7'
 
 gem "activeadmin"
+gem "activeadmin_blaze_theme"
 gem "bootstrap"
 gem "devise"
 gem "faraday"

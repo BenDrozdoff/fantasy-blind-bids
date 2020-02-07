@@ -31,7 +31,7 @@ class BidReporter
   end
 
   def matched
-    "#{owner.full_name} has matched #{name} for $#{current_high_bid}"
+    "#{owner.full_name} has matched #{name} for $#{final_price}"
   end
 
   def not_matched

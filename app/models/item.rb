@@ -14,9 +14,7 @@ class Item < ApplicationRecord
   scope :available_to_match, lambda { |user_id|
     pending_match.includes(:bids).where(owner_id: user_id).order("bids.value DESC")
   }
-  scope :active_belonging_to_user, lambda { |user_id|
-                                     active.includes(bids: :user).where(owner_id: user_id).order("bids.value DESC")
-                                   }
+  scope :active_belonging_to_user, ->(user_id) { active.includes(bids: :user).where(owner_id: user_id) }
   after_save :schedule_expiration
 
   def current_high_bid
@@ -60,8 +58,8 @@ class Item < ApplicationRecord
       break unless pending_match?
 
       update(status: :expired, closes_at: Time.now, winner: owner, final_price: matching_price)
-      ResultsGroupmeWorker.perform_async(id)
     end
+    ResultsGroupmeWorker.perform_async(id)
   end
 
   def matched?

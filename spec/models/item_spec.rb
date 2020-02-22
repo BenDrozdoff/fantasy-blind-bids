@@ -45,6 +45,25 @@ RSpec.describe Item, type: :model do
 
     around { |example| Timecop.freeze { example.run } }
 
+    before { allow(ResultsGroupmeWorker).to receive(:perform_async) }
+
+    context "with an item that has not closed yet" do
+      let(:item) { create :item, closes_at: 3.hours.from_now, status: :active }
+
+      it "does not change the item status" do
+        expire
+        item.reload
+        expect(item).to be_active
+        expect(item.final_price).to be_nil
+        expect(item.winner).to be_nil
+      end
+
+      it "does not call the worker" do
+        expire
+        expect(ResultsGroupmeWorker).not_to have_received(:perform_async)
+      end
+    end
+
     context "with an active item" do
       let(:status) { :active }
 
@@ -112,8 +131,6 @@ RSpec.describe Item, type: :model do
     end
 
     context "with an already won item" do
-      before { allow(ResultsGroupmeWorker).to receive(:perform_async) }
-
       let(:status) { "expired" }
 
       it "does not call the groupme worker" do
@@ -123,8 +140,6 @@ RSpec.describe Item, type: :model do
     end
 
     context "with a tied item" do
-      before { allow(ResultsGroupmeWorker).to receive(:perform_async) }
-
       let(:status) { "tied" }
 
       it "does not call the groupme worker" do

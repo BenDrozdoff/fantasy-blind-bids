@@ -68,7 +68,7 @@ class Item < ApplicationRecord
 
   def expire!
     with_lock do
-      break unless (active? || pending_match?) && closes_at <= Time.now.utc
+      break unless (active? && closes_at <= Time.now.utc) || pending_match?
 
       if active?
         expire_active!

@@ -110,6 +110,17 @@ RSpec.describe Item, type: :model do
       let!(:low_bid) { create :bid, item: item, value: 15 }
       let!(:high_bid) { create :bid, item: item, value: 30 }
 
+      context "and the item has not closed yet" do
+        let(:item) { create :item, status: :pending_match, closes_at: 1.hour.from_now, final_price: 30 }
+
+        it "expires the item and sets the winner" do
+          expire
+          item.reload
+          expect(item.winner).to eq(high_bid.user)
+          expect(item).to be_expired
+        end
+      end
+
       context "with one high bidder" do
         it "expires the item and sets the winner" do
           expire

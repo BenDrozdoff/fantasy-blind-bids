@@ -11,7 +11,7 @@ Bundler.require(*Rails.groups)
 module FantasyBlindBids
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 5.2
+    config.load_defaults 6.0
 
     config.x.redis_url = ENV.fetch("REDISTOGO_URL", "redis://localhost:6379/0")
 

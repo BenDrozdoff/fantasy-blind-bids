@@ -43,12 +43,10 @@ class Item < ApplicationRecord
     return final_price unless arb_status.present?
 
     rate = case arb_status
-           when "arb_1"
-             0.25
            when "arb_2"
-             0.5
+             0.25
            when "arb_3"
-             0.75
+             0.5
            end
     (final_price.to_f * rate).ceil
   end

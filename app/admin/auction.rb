@@ -27,18 +27,21 @@ ActiveAdmin.register Auction do
               item.arb_status&.humanize
             end
             column :action do |item|
-              div do
+              div class: "bid-action-container" do
                 current_bid = item.bids.select { |bid| bid.user_id == current_user.id }.first
                 if current_bid.present?
-                  form_for :bid, url: admin_bid_path(current_bid.id), html: { method: :patch } do |f|
-                    f.number_field :value, value: current_bid.value
+                  form_for :bid, url: admin_bid_path(current_bid.id), html: { class: "bid-form", method: :patch } do |f|
+                    f.number_field :value, value: current_bid.value, class: "bid-input-field"
                     f.submit "Update Bid"
                   end
+                  form_for :bid, url: admin_bid_path(current_bid.id), html: { method: :delete } do |f|
+                    f.submit "Destroy Bid", class: "danger"
+                  end
                 else
-                  form_for :bid, url: admin_bids_path do |f|
-                    f.number_field :value
+                  form_for :bid, url: admin_bids_path, html: { class: "bid-form" } do |f|
+                    f.number_field :value, class: "bid-input-field"
                     f.hidden_field :item_id, value: item.id
-                    f.submit :bid
+                    f.submit "Bid"
                   end
                 end
               end

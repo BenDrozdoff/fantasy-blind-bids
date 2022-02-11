@@ -14,7 +14,9 @@ ActiveAdmin.register Auction do
     tabs do
       tab "Available Players", id: :available_items do
         paginated_collection(
-          resource.items.available_to_user(current_user.id).order(:closes_at).page(params[:page]).per(15)
+          resource.items.available_to_user(current_user.id).order(
+            :closes_at, starting_price: :desc, name: :asc
+          ).page(params[:page]).per(15)
         ) do
           table_for collection do
             column :name

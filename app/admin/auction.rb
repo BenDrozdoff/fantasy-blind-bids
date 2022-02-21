@@ -7,7 +7,12 @@ ActiveAdmin.register Auction do
   end
 
   action_item :expired_items, only: :show do
-    link_to "Expired Players", admin_items_path(q: { status_eq: Item.statuses[:expired], auction_name: resource.name })
+    link_to "Expired Players", admin_items_path(
+      q: {
+        status_eq: Item.statuses[:expired],
+        auction_name_contains: resource.name,
+      }
+    )
   end
 
   show do

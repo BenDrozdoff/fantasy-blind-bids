@@ -7,7 +7,7 @@ ActiveAdmin.register Auction do
   end
 
   action_item :expired_items, only: :show do
-    link_to "Expired Players", admin_items_path(q: { status_eq: 1 })
+    link_to "Expired Players", admin_items_path(q: { status_eq: Item.statuses[:expired], auction_name: resource.name })
   end
 
   show do
@@ -52,6 +52,7 @@ ActiveAdmin.register Auction do
           end
         end
       end
+
       tab "Pending Match", id: :pending_match do
         table_for resource.items.available_to_match(current_user.id) do
           column :name
@@ -74,7 +75,8 @@ ActiveAdmin.register Auction do
           end
         end
       end
-      tab "My Players", id: :my_items do
+
+      tab "My Upcoming Players", id: :my_upcoming_items do
         table_for resource.items.active_belonging_to_user(current_user.id).order(:closes_at) do
           column :name
           column :starting_price
@@ -86,6 +88,20 @@ ActiveAdmin.register Auction do
           column :current_high_bid
           column :current_high_bidder
           column :bids
+        end
+      end
+
+      tab "Won Players", id: :won_items do
+        table_for resource.items.won_by_user(current_user.id).order(final_price: :desc) do
+          column :name
+          column :starting_price
+          column :final_price
+          column :original_owner do |item|
+            item.owner.full_name
+          end
+          column :arb_status do |item|
+            item.arb_status&.humanize
+          end
         end
       end
     end

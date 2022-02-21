@@ -10,6 +10,7 @@ RSpec.describe Item, type: :model do
     let!(:expired_item) { create :item, :won, auction: auction }
     let!(:user_active_item) { create :item, auction: auction, owner: user }
     let!(:user_expired_item) { create :item, :won, auction: auction, owner: user }
+    let!(:user_pending_match_item) { create :item, :pending_match, auction: auction, owner: user }
     let!(:user_won_item) { create :item, :won, auction: auction, winner: user }
 
     describe ".available_to_user" do
@@ -22,6 +23,18 @@ RSpec.describe Item, type: :model do
       subject { described_class.active_belonging_to_user(user.id) }
 
       it { is_expected.to contain_exactly(user_active_item) }
+    end
+
+    describe ".won_by_user" do
+      subject { described_class.won_by_user(user.id) }
+
+      it { is_expected.to contain_exactly(user_won_item) }
+    end
+
+    describe ".available_to_match" do
+      subject { described_class.available_to_match(user.id) }
+
+      it { is_expected.to contain_exactly(user_pending_match_item) }
     end
   end
 

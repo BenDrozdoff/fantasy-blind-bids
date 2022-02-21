@@ -21,6 +21,7 @@ ActiveAdmin.register Item do
   filter :name
   filter :starting_price
   filter :final_price
+  filter :auction_name, as: :string
   filter :status, as: :select, collection: Item.statuses
   filter :arb_status, as: :select, collection: Item.arb_statuses
 

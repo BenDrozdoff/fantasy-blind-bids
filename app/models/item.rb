@@ -15,7 +15,10 @@ class Item < ApplicationRecord
     pending_match.includes(:bids).where(owner_id: user_id).order("bids.value DESC")
   }
   scope :active_belonging_to_user, ->(user_id) { active.includes(bids: :user).where(owner_id: user_id) }
+  scope :won_by_user, ->(user_id) { expired.where(winner_id: user_id).includes(:owner, :winner) }
   after_save :schedule_expiration
+
+  delegate :name, to: :auction, prefix: true
 
   def current_high_bid
     bids.maximum(:value) || starting_price

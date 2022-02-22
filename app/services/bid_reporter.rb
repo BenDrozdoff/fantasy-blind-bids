@@ -15,7 +15,7 @@ class BidReporter
   end
 
   def no_bids_made
-    "No bids made for #{name}, remains with #{owner.full_name} for $#{starting_price}."
+    "You can put it on the board! No bids made for #{name}, remains with #{owner.full_name} for $#{starting_price}."
   end
 
   def single_winner
@@ -23,6 +23,7 @@ class BidReporter
   end
 
   def tied
+    "You've got to be bleepin kidding me! "\
     "#{current_high_bidders.map(&:full_name).join(' and ')} tied on #{name} for $#{current_high_bid}."
   end
 
@@ -31,11 +32,11 @@ class BidReporter
   end
 
   def matched
-    "#{owner.full_name} has matched #{name} for $#{final_price}"
+    "#{owner.full_name} has matched #{name} for $#{final_price}. Dagnabbit!"
   end
 
   def not_matched
-    "#{owner.full_name} has chosen not to match"
+    "#{owner.full_name} has chosen not to match. He gone!"
   end
 
   def report

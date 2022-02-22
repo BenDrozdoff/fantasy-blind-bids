@@ -236,6 +236,7 @@ RSpec.describe Item, type: :model do
         it "describes the tie and includes the pending match message" do
           expect(bid_report).to include "tied on"
           expect(bid_report).to include "joe sample has 3 hours to match"
+          expect(bid_report).to include "You've got to be bleepin kidding me!"
         end
       end
     end
@@ -243,14 +244,16 @@ RSpec.describe Item, type: :model do
     context "for an expired item" do
       context "with no bids" do
         let(:item) { create :item, owner: owner }
-        let(:expected_text) { "No bids made for #{item.name}, remains with joe sample for $1." }
+        let(:expected_text) do
+          "You can put it on the board! No bids made for #{item.name}, remains with joe sample for $1."
+        end
 
         it { is_expected.to eq expected_text }
       end
 
       context "for a matched item" do
         let(:item) { create :item, :matched, owner: owner }
-        let(:expected_text) { "joe sample has matched #{item.name} for $15" }
+        let(:expected_text) { "joe sample has matched #{item.name} for $15. Dagnabbit!" }
 
         it { is_expected.to eq expected_text }
       end
@@ -262,6 +265,7 @@ RSpec.describe Item, type: :model do
         it "indicates winner and no match" do
           expect(bid_report).to include "wins #{item.name}"
           expect(bid_report).to include "joe sample has chosen not to match"
+          expect(bid_report).to include "He gone!"
         end
       end
 
@@ -271,6 +275,7 @@ RSpec.describe Item, type: :model do
         it "indicates tie and no match" do
           expect(bid_report).to include "tie"
           expect(bid_report).to include "joe sample has chosen not to match"
+          expect(bid_report).to include "You've got to be bleepin kidding me!"
         end
       end
     end

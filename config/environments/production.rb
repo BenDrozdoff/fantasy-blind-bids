@@ -90,7 +90,7 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
-  config.x.groupme_bot_id = ENV.fetch("GROUPME_BOT_ID")
+  config.x.groupme_bot_id = ENV["GROUPME_BOT_ID"]
 
   # Inserts middleware to perform automatic connection switching.
   # The `database_selector` hash is used to pass options to the DatabaseSelector

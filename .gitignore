@@ -31,3 +31,5 @@
 
 # Ignore Test Coverage
 /coverage/*
+
+.env

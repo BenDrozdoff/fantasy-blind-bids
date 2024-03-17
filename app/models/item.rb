@@ -20,6 +20,14 @@ class Item < ApplicationRecord
 
   delegate :name, to: :auction, prefix: true
 
+  def self.ransackable_attributes(auth_object = nil)
+    ["name", "owner_id", "winner_id", "starting_price", "final_price", "status", "arb_status"]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    ["auction", "bids", "owner", "winner"]
+  end
+
   def current_high_bid
     bids.maximum(:value) || starting_price
   end

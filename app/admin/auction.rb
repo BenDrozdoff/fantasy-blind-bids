@@ -15,6 +15,21 @@ ActiveAdmin.register Auction do
     )
   end
 
+  action_item :close_bidding, only: :show do
+    button_to "Close Bidding", close_bidding_admin_auction_path(resource), method: :post
+  end
+
+  member_action :close_bidding, method: :post do
+    active = resource.items.active.where('closes_at <= ?', Time.now.utc)
+    pending_match = resource.items.pending_match
+
+    ActiveRecord::Base.transaction do
+      (active.to_a + pending_match.to_a).each do |item|
+        item.expire!
+      end
+    end
+  end
+
   show do
     tabs do
       tab "Available Players", id: :available_items do

@@ -11,6 +11,14 @@ class User < ApplicationRecord
   has_many :owned_items, class_name: "Item", foreign_key: "owner_id"
   has_many :won_items, class_name: "Item", foreign_key: "winner_id"
 
+  def self.ransackable_attributes(auth_object = nil)
+    []
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    []
+  end
+
   def full_name
     [first_name, last_name].join(" ")
   end

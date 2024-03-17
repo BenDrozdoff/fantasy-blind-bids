@@ -16,7 +16,6 @@ class Item < ApplicationRecord
   }
   scope :active_belonging_to_user, ->(user_id) { active.includes(bids: :user).where(owner_id: user_id) }
   scope :won_by_user, ->(user_id) { expired.where(winner_id: user_id).includes(:owner, :winner) }
-  after_save :schedule_expiration
 
   delegate :name, to: :auction, prefix: true
 
@@ -60,7 +59,7 @@ class Item < ApplicationRecord
 
       update(status: :expired, closes_at: Time.now, winner: owner, final_price: matching_price)
     end
-    ResultsGroupmeWorker.perform_async(id)
+    ResultsGroupmeWorker.new.perform(id)
   end
 
   def matched?
@@ -77,7 +76,7 @@ class Item < ApplicationRecord
         currently_tied? ? tie! : decline_match!
       end
 
-      ResultsGroupmeWorker.perform_async(id)
+      ResultsGroupmeWorker.new.perform(id)
     end
   end
 
@@ -101,11 +100,5 @@ class Item < ApplicationRecord
 
   def decline_match!
     update!(status: :expired, winner: current_high_bidder)
-  end
-
-  def schedule_expiration
-    return unless Time.now < closes_at
-
-    ExpireItemWorker.perform_at(closes_at, id)
   end
 end

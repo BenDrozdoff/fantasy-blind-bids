@@ -20,11 +20,10 @@ ActiveAdmin.register Auction do
   end
 
   member_action :close_bidding, method: :post do
-    active = resource.items.active.where('closes_at <= ?', Time.now.utc)
-    pending_match = resource.items.pending_match
+    items = resource.items.active.or(resource.items.pending_match).where('closes_at <= ?', Time.now.utc)
 
     ActiveRecord::Base.transaction do
-      (active.to_a + pending_match.to_a).each do |item|
+      items.each do |item|
         item.expire!
       end
     end
